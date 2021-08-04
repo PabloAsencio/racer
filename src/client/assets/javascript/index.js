@@ -5,6 +5,7 @@ var store = {
     track_id: undefined,
     player_id: undefined,
     race_id: undefined,
+    race_started: false,
 };
 
 // We need our javascript to wait until the DOM is loaded
@@ -76,6 +77,7 @@ async function delay(ms) {
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
     // render starting UI
+    store.race_started = false;
     renderAt('#race', renderRaceStartView(store.track_id));
 
     const player_id = store.player_id;
@@ -84,7 +86,7 @@ async function handleCreateRace() {
     store.race_id = race.ID;
     try {
         await runCountdown();
-        await startRace(race.ID);
+        store.race_started = await startRace(race.ID);
         await runRace(race.ID);
     } catch (error) {
         console.error(error);
@@ -168,7 +170,9 @@ function handleSelectTrack(target) {
 
 function handleAccelerate() {
     console.log('accelerate button clicked');
-    accelerate(store.race_id);
+    if (store.race_started) {
+        accelerate(store.race_id);
+    }
 }
 
 // HTML VIEWS ------------------------------------------------
